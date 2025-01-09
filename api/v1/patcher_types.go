@@ -18,18 +18,27 @@ package v1
 
 import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"strings"
 )
 
-// EDIT THIS FILE!  THIS IS SCAFFOLDING FOR YOU TO OWN!
-// NOTE: json tags are required.  Any new fields you add must have json tags for the fields to be serialized.
+type TargetSpec struct {
+	Name string `json:"name"`
+	Type string `json:"type"`
+}
 
 // PatcherSpec defines the desired state of Patcher.
 type PatcherSpec struct {
-	// INSERT ADDITIONAL SPEC FIELDS - desired state of cluster
-	// Important: Run "make" to regenerate code after modifying this file
+	Secret  string       `json:"secret"`
+	Targets []TargetSpec `json:"targets"`
+}
 
-	// Foo is an example field of Patcher. Edit patcher_types.go to remove/update
-	Foo string `json:"foo,omitempty"`
+func (ps *Patcher) NameSpaceIsTarget(namespace string) bool {
+	for _, target := range ps.Spec.Targets {
+		if (target.Type == "prefix" && strings.HasPrefix(namespace, target.Name)) || (target.Type == "match" && namespace == target.Name) {
+			return true
+		}
+	}
+	return false
 }
 
 // PatcherStatus defines the observed state of Patcher.

@@ -1,8 +1,12 @@
-# namespace-secrets-patcher
-// TODO(user): Add simple overview of use/purpose
+# Namespace Secrets Patcher
+
+Copy a secret from 1 source namespace into multiple targets.
 
 ## Description
-// TODO(user): An in-depth paragraph about your project and overview of use
+
+In a single user cluster, certain secrets can be safely shared between project namespaces.
+
+A good example of this is the container registry secret, allowing custom images to be pulled.
 
 ## Getting Started
 
@@ -16,7 +20,7 @@
 **Build and push your image to the location specified by `IMG`:**
 
 ```sh
-make docker-build docker-push IMG=<some-registry>/namespace-secrets-patcher:tag
+make docker-build docker-push IMG=ghcr.io/infrabits/namespace-secrets-patcher:tag
 ```
 
 **NOTE:** This image ought to be published in the personal registry you specified.
@@ -32,7 +36,7 @@ make install
 **Deploy the Manager to the cluster with the image specified by `IMG`:**
 
 ```sh
-make deploy IMG=<some-registry>/namespace-secrets-patcher:tag
+make deploy IMG=ghcr.io/infrabits/namespace-secrets-patcher:tag
 ```
 
 > **NOTE**: If you encounter RBAC errors, you may need to grant yourself cluster-admin
@@ -73,7 +77,7 @@ Following are the steps to build the installer and distribute this project to us
 1. Build the installer for the image built and published in the registry:
 
 ```sh
-make build-installer IMG=<some-registry>/namespace-secrets-patcher:tag
+make build-installer IMG=ghcr.io/infrabits/namespace-secrets-patcher:tag
 ```
 
 NOTE: The makefile target mentioned above generates an 'install.yaml'
@@ -86,15 +90,8 @@ its dependencies.
 Users can just run kubectl apply -f <URL for YAML BUNDLE> to install the project, i.e.:
 
 ```sh
-kubectl apply -f https://raw.githubusercontent.com/<org>/namespace-secrets-patcher/<tag or branch>/dist/install.yaml
+kubectl apply -f https://raw.githubusercontent.com/infrabits/namespace-secrets-patcher/main/dist/install.yaml
 ```
-
-## Contributing
-// TODO(user): Add detailed information on how you would like others to contribute to this project
-
-**NOTE:** Run `make help` for more information on all potential `make` targets
-
-More information can be found via the [Kubebuilder Documentation](https://book.kubebuilder.io/introduction.html)
 
 ## License
 
