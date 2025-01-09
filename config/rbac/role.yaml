@@ -7,7 +7,7 @@ rules:
 - apiGroups:
   - namespace-secrets-patcher.infrabits.nl
   resources:
-  - namespace
+  - namespaces
   verbs:
   - get
   - list
@@ -41,7 +41,7 @@ rules:
 - apiGroups:
   - namespace-secrets-patcher.infrabits.nl
   resources:
-  - secret
+  - secrets
   verbs:
   - create
   - get
