@@ -43,7 +43,7 @@ type PatcherReconciler struct {
 // +kubebuilder:rbac:groups=namespace-secrets-patcher.infrabits.nl,resources=patchers/status,verbs=get;update;patch
 // +kubebuilder:rbac:groups=namespace-secrets-patcher.infrabits.nl,resources=patchers/finalizers,verbs=update
 // +kubebuilder:rbac:groups=namespace-secrets-patcher.infrabits.nl,resources=namespaces,verbs=get;list;watch
-// +kubebuilder:rbac:groups=namespace-secrets-patcher.infrabits.nl,resources=secret,verbs=get;create;update;watch
+// +kubebuilder:rbac:groups=namespace-secrets-patcher.infrabits.nl,resources=secrets,verbs=get;create;update;watch
 
 // Reconcile is part of the main kubernetes reconciliation loop which aims to
 // move the current state of the cluster closer to the desired state.
