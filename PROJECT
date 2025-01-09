@@ -7,4 +7,14 @@ layout:
 - go.kubebuilder.io/v4
 projectName: namespace-secrets-patcher
 repo: github.com/infrabits/namespace-secrets-patcher
+resources:
+- api:
+    crdVersion: v1
+    namespaced: true
+  controller: true
+  domain: infrabits.nl
+  group: namespace-secrets-patcher
+  kind: Patcher
+  path: github.com/infrabits/namespace-secrets-patcher/api/v1
+  version: v1
 version: "3"

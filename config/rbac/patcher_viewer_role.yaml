@@ -1,0 +1,23 @@
+# permissions for end users to view patchers.
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  labels:
+    app.kubernetes.io/name: namespace-secrets-patcher
+    app.kubernetes.io/managed-by: kustomize
+  name: patcher-viewer-role
+rules:
+- apiGroups:
+  - namespace-secrets-patcher.infrabits.nl
+  resources:
+  - patchers
+  verbs:
+  - get
+  - list
+  - watch
+- apiGroups:
+  - namespace-secrets-patcher.infrabits.nl
+  resources:
+  - patchers/status
+  verbs:
+  - get
