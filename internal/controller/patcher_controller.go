@@ -18,6 +18,7 @@ package controller
 
 import (
 	"context"
+
 	namespacesecretspatcherv1 "github.com/infrabits/namespace-secrets-patcher/api/v1"
 	patcherv1 "github.com/infrabits/namespace-secrets-patcher/api/v1"
 	v1 "k8s.io/api/core/v1"
