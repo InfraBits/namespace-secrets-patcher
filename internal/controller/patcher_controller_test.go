@@ -18,6 +18,7 @@ package controller
 
 import (
 	"context"
+	v1 "k8s.io/api/core/v1"
 
 	v1 "k8s.io/api/core/v1"
 
@@ -34,36 +35,94 @@ import (
 
 var _ = Describe("Patcher Controller", func() {
 	Context("When reconciling a resource", func() {
-		const resourceName = "test-resource"
-
 		ctx := context.Background()
 
 		typeNamespacedName := types.NamespacedName{
-			Name:      resourceName,
-			Namespace: "default", // TODO(user):Modify as needed
+			Name:      "test-resource",
+			Namespace: "source-namespace",
 		}
 		patcher := &namespacesecretspatcherv1.Patcher{}
+		sourceNamespace := &v1.Namespace{}
+		sourceSecret := &v1.Secret{}
+		targetNamespace := &v1.Namespace{}
 
 		BeforeEach(func() {
+			By("creating the source namespace")
+			if err := k8sClient.Get(ctx, types.NamespacedName{
+				Name: "source-namespace",
+			}, sourceNamespace); err != nil && errors.IsNotFound(err) {
+				sourceNamespace = &v1.Namespace{
+					ObjectMeta: metav1.ObjectMeta{
+						Name: "source-namespace",
+					},
+				}
+				Expect(k8sClient.Create(ctx, sourceNamespace)).To(Succeed())
+			}
+
+			By("creating the source secret")
+			if err := k8sClient.Get(ctx, types.NamespacedName{
+				Name:      "source-secret",
+				Namespace: "source-namespace",
+			}, sourceSecret); err != nil && errors.IsNotFound(err) {
+				sourceSecret = &v1.Secret{
+					ObjectMeta: metav1.ObjectMeta{
+						Name:      "source-secret",
+						Namespace: "source-namespace",
+					},
+					Type: v1.SecretTypeOpaque,
+					Data: map[string][]byte{
+						"test": []byte("abc213"),
+					},
+				}
+				Expect(k8sClient.Create(ctx, sourceSecret)).To(Succeed())
+			}
+
+			By("creating the target namespace")
+			if err := k8sClient.Get(ctx, types.NamespacedName{
+				Name: "target-namespace",
+			}, targetNamespace); err != nil && errors.IsNotFound(err) {
+				targetNamespace = &v1.Namespace{
+					ObjectMeta: metav1.ObjectMeta{
+						Name: "target-namespace",
+					},
+				}
+				Expect(k8sClient.Create(ctx, targetNamespace)).To(Succeed())
+			}
+
 			By("creating the custom resource for the Kind Patcher")
-			err := k8sClient.Get(ctx, typeNamespacedName, patcher)
-			if err != nil && errors.IsNotFound(err) {
+			if err := k8sClient.Get(ctx, typeNamespacedName, patcher); err != nil && errors.IsNotFound(err) {
 				resource := &namespacesecretspatcherv1.Patcher{
 					ObjectMeta: metav1.ObjectMeta{
-						Name:      resourceName,
-						Namespace: "default",
+						Name:      "test-resource",
+						Namespace: "source-namespace",
 					},
-					// TODO(user): Specify other spec details if needed.
+					Spec: namespacesecretspatcherv1.PatcherSpec{
+						Secret: "source-secret",
+						Targets: []namespacesecretspatcherv1.TargetSpec{
+							{
+								Name: "target-namespace",
+								Type: "match",
+							},
+						},
+					},
 				}
 				Expect(k8sClient.Create(ctx, resource)).To(Succeed())
 			}
 		})
 
 		AfterEach(func() {
-			// TODO(user): Cleanup logic after each test, like removing the resource instance.
 			resource := &namespacesecretspatcherv1.Patcher{}
 			err := k8sClient.Get(ctx, typeNamespacedName, resource)
 			Expect(err).NotTo(HaveOccurred())
+
+			By("Cleanup the source namespace")
+			Expect(k8sClient.Delete(ctx, sourceNamespace)).To(Succeed())
+
+			By("Cleanup the source secret")
+			Expect(k8sClient.Delete(ctx, sourceSecret)).To(Succeed())
+
+			By("Cleanup the target namespace")
+			Expect(k8sClient.Delete(ctx, targetNamespace)).To(Succeed())
 
 			By("Cleanup the specific resource instance Patcher")
 			Expect(k8sClient.Delete(ctx, resource)).To(Succeed())
@@ -79,8 +138,15 @@ var _ = Describe("Patcher Controller", func() {
 				NamespacedName: typeNamespacedName,
 			})
 			Expect(err).NotTo(HaveOccurred())
-			// TODO(user): Add more specific assertions depending on your controller's reconciliation logic.
-			// Example: If you expect a certain status condition after reconciliation, verify it here.
+
+			targetSecret := &v1.Secret{}
+			fetchErr := k8sClient.Get(ctx, types.NamespacedName{
+				Name:      "source-secret",
+				Namespace: "target-namespace",
+			}, targetSecret)
+			Expect(fetchErr).NotTo(HaveOccurred())
+
+			Expect(targetSecret.Data["test"]).To(Equal([]byte("abc213")))
 		})
 	})
 })
