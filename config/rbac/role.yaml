@@ -5,12 +5,21 @@ metadata:
   name: manager-role
 rules:
 - apiGroups:
-  - namespace-secrets-patcher.infrabits.nl
+  - '*'
   resources:
   - namespaces
   verbs:
+  - list
+  - watch
+- apiGroups:
+  - '*'
+  resources:
+  - secrets
+  verbs:
+  - create
   - get
   - list
+  - update
   - watch
 - apiGroups:
   - namespace-secrets-patcher.infrabits.nl
@@ -38,12 +47,3 @@ rules:
   - get
   - patch
   - update
-- apiGroups:
-  - namespace-secrets-patcher.infrabits.nl
-  resources:
-  - secrets
-  verbs:
-  - create
-  - get
-  - update
-  - watch
