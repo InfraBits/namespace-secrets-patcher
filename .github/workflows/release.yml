@@ -19,7 +19,7 @@ jobs:
           echo "tag=v$(git show -s --format=%ct)" >> $GITHUB_OUTPUT
 
   container:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-latest
     needs: [release]
     steps:
       - uses: actions/checkout@v4
@@ -33,7 +33,7 @@ jobs:
           make docker-build docker-push IMG=ghcr.io/infrabits/namespace-secrets-patcher:${{ needs.release.outputs.tag }}
 
   tag:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-latest
     needs: [release, container]
     steps:
       - name: Create GitHub release
