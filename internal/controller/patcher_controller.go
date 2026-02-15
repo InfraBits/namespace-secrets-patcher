@@ -19,11 +19,11 @@ package controller
 import (
 	"context"
 
-	namespacesecretspatcherv1 "github.com/infrabits/namespace-secrets-patcher/api/v1"
 	patcherv1 "github.com/infrabits/namespace-secrets-patcher/api/v1"
 	v1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/equality"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/types"
 	ctrl "sigs.k8s.io/controller-runtime"
@@ -93,9 +93,16 @@ func (r *PatcherReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ct
 					"target", namespace.Name,
 					"secret", patcher.Spec.Secret,
 				)
-				secret.DeepCopyInto(&targetSecret)
-				targetSecret.Namespace = namespace.Name
-				targetSecret.ResourceVersion = ""
+				targetSecret = v1.Secret{
+					ObjectMeta: metav1.ObjectMeta{
+						Name:        secret.Name,
+						Namespace:   namespace.Name,
+						Labels:      secret.Labels,
+						Annotations: secret.Annotations,
+					},
+					Type: secret.Type,
+					Data: secret.Data,
+				}
 				if err := r.Client.Create(ctx, &targetSecret); err != nil {
 					// This happens when a namespace is being deleted
 					if !apierrors.IsNotFound(err) {
@@ -125,7 +132,7 @@ func (r *PatcherReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ct
 // SetupWithManager sets up the controller with the Manager.
 func (r *PatcherReconciler) SetupWithManager(mgr ctrl.Manager) error {
 	return ctrl.NewControllerManagedBy(mgr).
-		For(&namespacesecretspatcherv1.Patcher{}).
+		For(&patcherv1.Patcher{}).
 		Watches(
 			&v1.Secret{},
 			handler.EnqueueRequestsFromMapFunc(func(ctx context.Context, secret client.Object) []reconcile.Request {

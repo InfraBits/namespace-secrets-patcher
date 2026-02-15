@@ -63,7 +63,7 @@ spec:
         args:
           - --leader-elect
           - --health-probe-bind-address=:8081
-        image: ghcr.io/infrabits/namespace-secrets-patcher:v1736443957
+        image: ghcr.io/infrabits/namespace-secrets-patcher:v1771163243
         name: manager
         securityContext:
           allowPrivilegeEscalation: false
